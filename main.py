@@ -3,6 +3,7 @@ from playsound import playsound
 import sqlite3
 import glob
 import os
+import json
 
 class Stask:
     def __init__(self):
@@ -15,7 +16,11 @@ class Stask:
 
         self.UIobj = self.UIclass.UI
         self.UIobj.state('zoomed')    
-
+ 
+        with open('settings.json') as f:
+            data = json.load(f)
+            
+        self.BGColor = data['BackgroundColor']
     """
     IMPORTANT FUNCTIONS !!!!!!
     """
@@ -31,27 +36,65 @@ class Stask:
             self.deleteList.destroy()
             playsound('Assets/clickSound.wav')
             delattr(self,'deleteList')
+        elif hasattr(self,'view_Lists_Frame'):
+            self.view_Lists_Frame.destroy()
+            playsound('Assets/clickSound.wav')
+            delattr(self,'view_Lists_Frame')
 
-        self.mainMenu = self.UIclass.create_Frame('springgreen2')
+        self.mainMenu = self.UIclass.create_Frame(self.BGColor)
 
-        versionLable = Label(self.mainMenu, text="V0.1",bg='springgreen2',font=('Arial',25))
-        versionLable.pack(expand=True,fill='both',side='bottom')
+        versionLable = Label(self.mainMenu, text="V0.1",bg=self.BGColor,font=('Arial',25))
+        versionLable.pack(side='bottom')
         versionLable.place(relx = 0.98, rely = 1, anchor = 's')
 
-        self.UIclass.create_Lable(parent=self.mainMenu,bg='springgreen2',isImage=True,textOrImage=self.menu_Image,width=400,height=250)
+        self.UIclass.create_Lable(parent=self.mainMenu,bg=self.BGColor,isImage=True,textOrImage=self.menu_Image,width=400,height=250)
 
-        viewListsButton = self.UIclass.create_Button(parent=self.mainMenu,bg='springgreen2',isImage=True,textOrImage=self.view_Image,width=200,height=50)
-        # viewListsButton.config(command='eee')
+        viewListsButton = self.UIclass.create_Button(parent=self.mainMenu,bg=self.BGColor,isImage=True,textOrImage=self.view_Image,width=200,height=50)
+        viewListsButton.config(command=self.create_ViewlistsFrame)
 
         self.createPadding(self.mainMenu,1)
         
-        createListsButton = self.UIclass.create_Button(parent=self.mainMenu,bg='springgreen2',isImage=True,textOrImage=self.create_Image,width=200,height=50)
+        createListsButton = self.UIclass.create_Button(parent=self.mainMenu,bg=self.BGColor,isImage=True,textOrImage=self.create_Image,width=200,height=50)
         createListsButton.config(command = self.create_CreateListFrame)
 
         self.createPadding(self.mainMenu,1)
 
-        deleteListsButton = self.UIclass.create_Button(parent=self.mainMenu,bg='springgreen2',isImage=True,textOrImage=self.delete_image,width=220,height=50)
+        deleteListsButton = self.UIclass.create_Button(parent=self.mainMenu,bg=self.BGColor,isImage=True,textOrImage=self.delete_image,width=220,height=50)
         deleteListsButton.config(command=self.create_DeleteListFrame)
+
+    def create_ViewlistsFrame(self):
+        """
+        Creates View_Lists Frame Yes.
+        """
+        self.mainMenu.destroy()
+        playsound('Assets/clickSound.wav')
+
+        self.view_Lists_Frame = self.UIclass.create_Frame(self.BGColor)
+        databases = glob.glob("*DB")
+
+        if len(databases) == 0:
+            self.UIclass.create_Lable(parent=self.view_Lists_Frame,bg=self.BGColor,textOrImage='You have not created any Lists!',width=200,height=2)
+            back = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='red',textOrImage="Go Back",width=20,height=2,onClick='red3')
+            back.config(command=self.create_MainMenu)
+        else:
+            currentColumn = 0
+            currentRow = 0
+            for i in databases:
+                name = i.split(".DB")
+                name = name[0]
+                self.create_viewListButton(self.view_Lists_Frame,bg='goldenrod1',text=name,column=currentColumn,row=currentRow,width=30,height=3,onClick='goldenrod3')
+                currentRow += 1
+                if currentRow >= 5:
+                    currentRow = 0
+                    currentColumn += 1
+            
+            back = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='red',textOrImage="Back",width=20,height=2,onClick='red3',isGrid=True,column=currentColumn,row=currentRow)
+            back.config(command=self.create_MainMenu)
+
+    def view_TheList(self,name):
+        for i in self.view_Lists_Frame.winfo_children():
+            i.destroy()
+
 
     def create_DeleteListFrame(self):
         """
@@ -60,36 +103,32 @@ class Stask:
         self.mainMenu.destroy()
         playsound('Assets/clickSound.wav')
 
-        self.deleteList = self.UIclass.create_Frame('springgreen2')
+        self.deleteList = self.UIclass.create_Frame(self.BGColor)
         databases = glob.glob("*DB")
 
         if len(databases) == 0:
-            self.UIclass.create_Lable(parent=self.deleteList,bg='springgreen2',textOrImage='You have not created any Lists!',width=200,height=2)
+            self.UIclass.create_Lable(parent=self.deleteList,bg=self.BGColor,textOrImage='You have not created any Lists!',width=200,height=2)
             back = self.UIclass.create_Button(parent=self.deleteList,bg='red',textOrImage="Go Back",width=20,height=2,onClick='red3')
             back.config(command=self.create_MainMenu)
         else:
-            self.currentSelection = self.UIclass.create_Lable(parent=self.deleteList,bg='springgreen2',textOrImage="Current Selection: None",width=50,height=2,isGrid=True,column=20,row=10)
-            self.currentSelection.place(relx = 0.88, rely = 0.84, anchor = 's')
-
             currentColumn = 0
             currentRow = 0
             for i in databases:
                 name = i.split(".DB")
                 name = name[0]
-                self.create_DeleteableObjects(self.deleteList,bg='goldenrod1',text=name,column=currentColumn,row=currentRow,width=30,height=2,onClick='goldenrod3')
+                self.create_DeletelistButton(self.deleteList,bg='goldenrod1',text=name,column=currentColumn,row=currentRow,width=30,height=3,onClick='goldenrod3')
                 currentRow += 1
-                if currentRow >= 5:
+                if currentRow >= 10:
                     currentRow = 0
                     currentColumn += 1
 
-            delete = self.UIclass.create_Button(parent=self.deleteList,bg='turquoise',textOrImage="Delete",width=20,height=2,onClick='dark turquoise',isGrid=True,column=20,row=10)
-            delete.place(relx = 0.92, rely = 1, anchor = 's')
+            self.currentSelection = self.UIclass.create_Lable(parent=self.deleteList,bg=self.BGColor,textOrImage="None",isGrid=True,column=currentColumn + 1,row=currentRow)
+
+            delete = self.UIclass.create_Button(parent=self.deleteList,bg='turquoise',textOrImage="Delete",width=20,height=2,onClick='dark turquoise',isGrid=True,column=currentColumn + 1,row=currentRow + 1)
             delete.config(command=self.delete_List)
 
-            back = self.UIclass.create_Button(parent=self.deleteList,bg='red',textOrImage="Back",width=20,height=2,onClick='red3',isGrid=True,column=20,row=10)
-            back.place(relx = 0.92, rely = 0.92, anchor = 's')
+            back = self.UIclass.create_Button(parent=self.deleteList,bg='red',textOrImage="Back",width=20,height=2,onClick='red3',isGrid=True,column=currentColumn + 1,row=currentRow + 2)
             back.config(command=self.create_MainMenu)
-
 
     def create_CreateListFrame(self):
         """
@@ -98,11 +137,11 @@ class Stask:
         self.mainMenu.destroy()
         playsound('Assets/clickSound.wav')
 
-        self.createList = self.UIclass.create_Frame('springgreen2')
+        self.createList = self.UIclass.create_Frame(self.BGColor)
 
-        self.UIclass.create_Lable(parent=self.createList,bg='springgreen2',textOrImage='Enter the list name.',width=200,height=2)
+        self.UIclass.create_Lable(parent=self.createList,bg=self.BGColor,textOrImage='Enter the list name.',width=200,height=2)
 
-        inputLable = self.UIclass.create_InputLable(parent=self.createList,bg='springgreen2',width=50)
+        inputLable = self.UIclass.create_InputLable(parent=self.createList,bg=self.BGColor,width=50)
         self.createPadding(self.createList,1)
 
         create = self.UIclass.create_Button(parent=self.createList,bg='turquoise',textOrImage="Create List",width=20,height=2,onClick='dark turquoise')
@@ -125,17 +164,17 @@ class Stask:
                 delattr(self,'resultLable')
             
         if len(textWritten) < 3:
-            self.resultLable = self.UIclass.create_Lable(parent=self.createList,bg='springgreen2',textOrImage='Give the List a Longer Name (at least 3 letters)',width=200,height=2)
+            self.resultLable = self.UIclass.create_Lable(parent=self.createList,bg=self.BGColor,textOrImage='Give the List a Longer Name (at least 3 letters)',width=200,height=2)
             return;
         elif not(os.path.exists(f'{textWritten}.DB')):
-            self.resultLable = self.UIclass.create_Lable(parent=self.createList,bg='springgreen2',textOrImage='Creating list, please wait..',width=200,height=2)
+            self.resultLable = self.UIclass.create_Lable(parent=self.createList,bg=self.BGColor,textOrImage='Creating list, please wait..',width=200,height=2)
         else:
-            self.resultLable = self.UIclass.create_Lable(parent=self.createList,bg='springgreen2',textOrImage=f'List with the name "{textWritten}" already exists!',width=200,height=2)
+            self.resultLable = self.UIclass.create_Lable(parent=self.createList,bg=self.BGColor,textOrImage=f'List with the name "{textWritten}" already exists!',width=200,height=2)
             return;
 
         db = sqlite3.connect(f'{textWritten}.DB')
         cursor = db.cursor() 
-        cursor.execute("CREATE TABLE IF NOT EXISTS pending(task TEXT NOT NULL, description TEXT NOT NULL, createdAt TEXT NOT NULL)")
+        cursor.execute("CREATE TABLE IF NOT EXISTS pending(task TEXT NOT NULL)")
         db.close()
         self.resultLable.config(text='To-Do List Created!')
 
@@ -143,14 +182,23 @@ class Stask:
     """
     HELPING FUNCTIONS
     """
-    def create_DeleteableObjects(self,parent : str,bg : str,text : str,column : int,row : int,width : int,height : int,onClick : str):
-        buttonObj = Button(parent,bg=bg,width=width,height=height,activebackground=onClick,relief=GROOVE,text=text,font=('Arial',10))
+    def create_Task(self,text,parent,c,r):
+      pass
+
+    def create_DeletelistButton(self,parent : str,bg : str,text : str,column : int,row : int,width : int,height : int,onClick : str):
+        buttonObj = Button(parent,bg=bg,width=width,height=height,activebackground=onClick,relief=GROOVE,text=text,font=('Arial',10,BOLD))
         buttonObj.grid(column=column,row=row)
         buttonObj.config(command=lambda : self.update_Selection_text(text))
         return buttonObj
 
+    def create_viewListButton(self,parent : str,bg : str,text : str,column : int,row : int,width : int,height : int,onClick : str):
+        buttonObj = Button(parent,bg=bg,width=width,height=height,activebackground=onClick,relief=GROOVE,text=text,font=('Arial',10,BOLD))
+        buttonObj.grid(column=column,row=row)
+        buttonObj.config(command=lambda : self.view_TheList(text))
+        return buttonObj
+
     def createPadding(self,parent,height):
-        self.UIclass.create_Lable(parent=parent,bg='springgreen2',textOrImage='',height=height)
+        self.UIclass.create_Lable(parent=parent,bg=self.BGColor,textOrImage='',height=height)
 
     def update_Selection_text(self,name):
         self.currentSelection.config(text=f'{name}')

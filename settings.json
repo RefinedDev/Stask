@@ -1,0 +1,10 @@
+{
+    "BackgroundColor": "springgreen2",
+
+    "ValidColorNames": {
+        "1": "springgreen2",
+        "2": "dim gray",
+        "3": "black",
+        "4": "white"
+    }
+}

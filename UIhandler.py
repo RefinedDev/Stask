@@ -1,4 +1,6 @@
+from os import name
 from tkinter import *
+from tkinter.font import BOLD
 
 class StaskUIClass:
     def __init__(self):
@@ -21,7 +23,7 @@ class StaskUIClass:
         if isImage:
             lableObj.config(image=textOrImage)
         else:
-            lableObj.config(text=textOrImage,font=("Arial", 25),fg='black')
+            lableObj.config(text=textOrImage,font=("Arial", 25,BOLD),fg='black')
         
         if not (isGrid):
             lableObj.pack(side=side)
@@ -35,13 +37,13 @@ class StaskUIClass:
         if isImage:
             buttonObj.config(image=textOrImage)
         else:
-            buttonObj.config(text=textOrImage,font=("Arial", 15),fg='black')
+            buttonObj.config(text=textOrImage,font=("Arial", 15,BOLD),fg='black')
 
         if not (isGrid):
             buttonObj.pack(side=side)
         else:
             buttonObj.grid(column=column,row=row)
-
+    
         return buttonObj
     
     def create_InputLable(self,parent : str,bg : str,isGrid : bool = False,side='top',column : int = 0,row : int = 0,width : int = 0):
