@@ -44,8 +44,7 @@ class Stask:
         self.mainMenu = self.UIclass.create_Frame(self.BGColor)
 
         versionLable = Label(self.mainMenu, text="V0.1",bg=self.BGColor,font=('Arial',25))
-        versionLable.pack(side='bottom')
-        versionLable.place(relx = 0.98, rely = 1, anchor = 's')
+        versionLable.pack(side='bottom',anchor=SE)
 
         self.UIclass.create_Lable(parent=self.mainMenu,bg=self.BGColor,isImage=True,textOrImage=self.menu_Image,width=400,height=250)
 
@@ -80,22 +79,32 @@ class Stask:
             currentColumn = 0
             currentRow = 0
             for i in databases:
+                Grid.rowconfigure(self.view_Lists_Frame, currentRow, weight=1)
+                Grid.columnconfigure(self.view_Lists_Frame, currentColumn, weight=1)
+
                 name = i.split(".DB")
                 name = name[0]
                 self.create_viewListButton(self.view_Lists_Frame,bg='goldenrod1',text=name,column=currentColumn,row=currentRow,width=30,height=3,onClick='goldenrod3')
                 currentRow += 1
-                if currentRow >= 5:
+                if currentRow >= 10:
                     currentRow = 0
                     currentColumn += 1
             
             back = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='red',textOrImage="Back",width=20,height=2,onClick='red3',isGrid=True,column=currentColumn,row=currentRow)
             back.config(command=self.create_MainMenu)
 
+            Grid.rowconfigure(self.view_Lists_Frame, currentRow, weight=1)
+            Grid.columnconfigure(self.view_Lists_Frame, currentColumn, weight=1)
+
     def view_TheList(self,name):
         for i in self.view_Lists_Frame.winfo_children():
             i.destroy()
 
+        self.UIclass.create_Lable(parent=self.view_Lists_Frame,bg=self.BGColor,textOrImage='Pending',isGrid=True,column=1)
+        s = self.UIclass.create_Lable(parent=self.view_Lists_Frame,bg=self.BGColor,textOrImage='Doing',isGrid=True,column=2)
+        self.UIclass.create_Lable(parent=self.view_Lists_Frame,bg=self.BGColor,textOrImage='Done',isGrid=True,column=3)
 
+        s.config(padx=600)
     def create_DeleteListFrame(self):
         """
         Create DeleteListFrame yes
@@ -114,6 +123,8 @@ class Stask:
             currentColumn = 0
             currentRow = 0
             for i in databases:
+                Grid.rowconfigure(self.deleteList, currentRow, weight=1)
+                Grid.columnconfigure(self.deleteList, currentColumn, weight=1)    
                 name = i.split(".DB")
                 name = name[0]
                 self.create_DeletelistButton(self.deleteList,bg='goldenrod1',text=name,column=currentColumn,row=currentRow,width=30,height=3,onClick='goldenrod3')
@@ -129,7 +140,7 @@ class Stask:
 
             back = self.UIclass.create_Button(parent=self.deleteList,bg='red',textOrImage="Back",width=20,height=2,onClick='red3',isGrid=True,column=currentColumn + 1,row=currentRow + 2)
             back.config(command=self.create_MainMenu)
-
+        
     def create_CreateListFrame(self):
         """
         Create CreateListFrame yes.
@@ -201,11 +212,12 @@ class Stask:
         self.UIclass.create_Lable(parent=parent,bg=self.BGColor,textOrImage='',height=height)
 
     def update_Selection_text(self,name):
-        self.currentSelection.config(text=f'{name}')
+        if hasattr(self,'currentSelection'):
+            self.currentSelection.config(text=f'{name}')
 
     def delete_List(self):
         text = self.currentSelection.cget("text")
-        if text != 'Current Selection: None' and os.path.exists(f'{text}.DB'):
+        if text != 'Current Selection: None' and os.path.exists(f'{text}.DB') and hasattr(self,'currentSelection'):
             os.remove(f'{text}.DB')
             self.deleteList.destroy()
             self.create_DeleteListFrame()
