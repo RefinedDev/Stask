@@ -1,4 +1,4 @@
-from os import name
+import os
 from tkinter import *
 from tkinter.font import BOLD
 
@@ -54,3 +54,13 @@ class StaskUIClass:
             inputObj.grid(column=column,row=row)
 
         return inputObj
+    
+    def check_TextLength(self,text,limit):
+        textWritten = text
+
+        if len(textWritten) < limit:
+            return False;
+        elif not(os.path.exists(f'{textWritten}.DB')):
+            return True;
+        else:
+            return 'exists';

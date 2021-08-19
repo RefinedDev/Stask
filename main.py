@@ -40,7 +40,11 @@ class Stask:
             self.view_Lists_Frame.destroy()
             playsound('Assets/clickSound.wav')
             delattr(self,'view_Lists_Frame')
-
+        elif hasattr(self,'createTaskList'):
+            self.createTaskList.destroy()
+            playsound('Assets/clickSound.wav')
+            delattr(self,'createTaskList')
+            
         self.mainMenu = self.UIclass.create_Frame(self.BGColor)
 
         versionLable = Label(self.mainMenu, text="V0.1",bg=self.BGColor,font=('Arial',25))
@@ -76,35 +80,49 @@ class Stask:
             back = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='red',textOrImage="Go Back",width=20,height=2,onClick='red3')
             back.config(command=self.create_MainMenu)
         else:
-            currentColumn = 0
-            currentRow = 0
+            self.currentColumn = 0
+            self.currentRow = 0
             for i in databases:
-                Grid.rowconfigure(self.view_Lists_Frame, currentRow, weight=1)
-                Grid.columnconfigure(self.view_Lists_Frame, currentColumn, weight=1)
+                Grid.rowconfigure(self.view_Lists_Frame, self.currentRow, weight=1)
+                Grid.columnconfigure(self.view_Lists_Frame, self.currentColumn, weight=1)
 
                 name = i.split(".DB")
                 name = name[0]
-                self.create_viewListButton(self.view_Lists_Frame,bg='goldenrod1',text=name,column=currentColumn,row=currentRow,width=30,height=3,onClick='goldenrod3')
-                currentRow += 1
-                if currentRow >= 10:
-                    currentRow = 0
-                    currentColumn += 1
+                self.create_viewListButton(self.view_Lists_Frame,bg='goldenrod1',text=name,column=self.currentColumn,row=self.currentRow,width=30,height=3,onClick='goldenrod3')
+                self.currentRow += 1
+                if self.currentRow >= 10:
+                    self.currentRow = 0
+                    self.currentColumn += 1
             
-            back = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='red',textOrImage="Back",width=20,height=2,onClick='red3',isGrid=True,column=currentColumn,row=currentRow)
+            back = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='red',textOrImage="Back",width=20,height=2,onClick='red3',isGrid=True,column=self.currentColumn,row=self.currentRow)
             back.config(command=self.create_MainMenu)
 
-            Grid.rowconfigure(self.view_Lists_Frame, currentRow, weight=1)
-            Grid.columnconfigure(self.view_Lists_Frame, currentColumn, weight=1)
+            Grid.rowconfigure(self.view_Lists_Frame, self.currentRow, weight=1)
+            Grid.columnconfigure(self.view_Lists_Frame, self.currentColumn, weight=1)
 
     def view_TheList(self,name):
         for i in self.view_Lists_Frame.winfo_children():
             i.destroy()
 
-        self.UIclass.create_Lable(parent=self.view_Lists_Frame,bg=self.BGColor,textOrImage='Pending',isGrid=True,column=1)
-        s = self.UIclass.create_Lable(parent=self.view_Lists_Frame,bg=self.BGColor,textOrImage='Doing',isGrid=True,column=2)
-        self.UIclass.create_Lable(parent=self.view_Lists_Frame,bg=self.BGColor,textOrImage='Done',isGrid=True,column=3)
+        for i in range(self.currentColumn):
+            Grid.columnconfigure(self.view_Lists_Frame, i, weight=0)
+        
+        for i in range(self.currentRow):
+            Grid.rowconfigure(self.view_Lists_Frame, i, weight=0)
 
-        s.config(padx=600)
+        delattr(self,'currentColumn')
+        delattr(self,'currentRow')
+
+        self.UIclass.create_Lable(parent=self.view_Lists_Frame,bg=self.BGColor,textOrImage='Pending',isGrid=True,column=0)
+        self.UIclass.create_Lable(parent=self.view_Lists_Frame,bg=self.BGColor,textOrImage='Doing',isGrid=True,column=1).config(padx=500)
+        self.UIclass.create_Lable(parent=self.view_Lists_Frame,bg=self.BGColor,textOrImage='Done',isGrid=True,column=2)
+
+        createTask = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='turquoise',textOrImage="Create Task",width=10,height=1,onClick='dark turquoise',isGrid=True,column=2,row=2)
+        createTask.config(command=lambda : self.create_Task(name))
+
+        back = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='red',textOrImage="Back",width=10,height=1,onClick='red3',isGrid=True,column=3,row=2)
+        back.config(command=self.create_MainMenu)
+
     def create_DeleteListFrame(self):
         """
         Create DeleteListFrame yes
@@ -140,7 +158,27 @@ class Stask:
 
             back = self.UIclass.create_Button(parent=self.deleteList,bg='red',textOrImage="Back",width=20,height=2,onClick='red3',isGrid=True,column=currentColumn + 1,row=currentRow + 2)
             back.config(command=self.create_MainMenu)
-        
+    
+    def create_Task(self,text):
+        self.view_Lists_Frame.destroy()
+        delattr(self,'view_Lists_Frame')
+        playsound('Assets/clickSound.wav')
+
+        self.createTaskList = self.UIclass.create_Frame(self.BGColor)
+
+        self.UIclass.create_Lable(parent=self.createTaskList,bg=self.BGColor,textOrImage='Enter the task name.',width=200,height=2)
+
+        inputLable = self.UIclass.create_InputLable(parent=self.createTaskList,bg=self.BGColor,width=50)
+        self.createPadding(self.createTaskList,1)
+
+        create = self.UIclass.create_Button(parent=self.createTaskList,bg='turquoise',textOrImage="Create List",width=20,height=2,onClick='dark turquoise')
+        create.config(command=lambda : self.create_task(text,inputLable))
+
+        self.createPadding(self.createTaskList,1)
+
+        back = self.UIclass.create_Button(parent=self.createTaskList,bg='red',textOrImage="Go Back",width=20,height=2,onClick='red3')
+        back.config(command=self.create_MainMenu)
+
     def create_CreateListFrame(self):
         """
         Create CreateListFrame yes.
@@ -163,6 +201,33 @@ class Stask:
         back = self.UIclass.create_Button(parent=self.createList,bg='red',textOrImage="Go Back",width=20,height=2,onClick='red3')
         back.config(command=self.create_MainMenu)
 
+    """
+    HELPING FUNCTIONS
+    """
+    def create_task(self,nameOfDB,inputLable):
+        playsound('Assets/clickSound.wav')
+        textWritten = inputLable.get()
+
+        if hasattr(self,'resultLable'):
+            self.resultLable.destroy()
+            delattr(self,'resultLable')
+
+        check = self.UIclass.check_TextLength(textWritten,3)
+        if check  == 'exists':
+            self.resultLable = self.UIclass.create_Lable(parent=self.createTaskList,bg=self.BGColor,textOrImage=f'List with the name "{textWritten}" already exists!',width=200,height=2)
+            return;
+        elif check == True:
+            self.resultLable = self.UIclass.create_Lable(parent=self.createTaskList,bg=self.BGColor,textOrImage='Creating list, please wait..',width=200,height=2)
+        else:
+            self.resultLable = self.UIclass.create_Lable(parent=self.createTaskList,bg=self.BGColor,textOrImage='Give the List a Longer Name (at least 3 letters)',width=200,height=2)
+            return;
+
+        db = sqlite3.connect(f'{nameOfDB}.DB')
+        cursor = db.cursor()
+        
+        cursor.execute(str.format("INSERT INTO pending (task) VALUES('%s')",textWritten))
+        db.close()
+        self.resultLable.config(text='Task Created!')
     def create_ListDatabase(self,inputLable):
         """
         Make the database for the list yes.
@@ -171,30 +236,26 @@ class Stask:
         textWritten = inputLable.get()
 
         if hasattr(self,'resultLable'):
-                self.resultLable.destroy()
-                delattr(self,'resultLable')
-            
-        if len(textWritten) < 3:
-            self.resultLable = self.UIclass.create_Lable(parent=self.createList,bg=self.BGColor,textOrImage='Give the List a Longer Name (at least 3 letters)',width=200,height=2)
+            self.resultLable.destroy()
+            delattr(self,'resultLable')
+
+        check = self.UIclass.check_TextLength(textWritten,3)
+        if check  == 'exists':
+            self.resultLable = self.UIclass.create_Lable(parent=self.createList,bg=self.BGColor,textOrImage=f'List with the name "{textWritten}" already exists!',width=200,height=2)
             return;
-        elif not(os.path.exists(f'{textWritten}.DB')):
+        elif check == True:
             self.resultLable = self.UIclass.create_Lable(parent=self.createList,bg=self.BGColor,textOrImage='Creating list, please wait..',width=200,height=2)
         else:
-            self.resultLable = self.UIclass.create_Lable(parent=self.createList,bg=self.BGColor,textOrImage=f'List with the name "{textWritten}" already exists!',width=200,height=2)
+            self.resultLable = self.UIclass.create_Lable(parent=self.createList,bg=self.BGColor,textOrImage='Give the List a Longer Name (at least 3 letters)',width=200,height=2)
             return;
 
         db = sqlite3.connect(f'{textWritten}.DB')
         cursor = db.cursor() 
         cursor.execute("CREATE TABLE IF NOT EXISTS pending(task TEXT NOT NULL)")
+        cursor.execute("CREATE TABLE IF NOT EXISTS doing(task TEXT NOT NULL)")
+        cursor.execute("CREATE TABLE IF NOT EXISTS done(task TEXT NOT NULL)")
         db.close()
         self.resultLable.config(text='To-Do List Created!')
-
-
-    """
-    HELPING FUNCTIONS
-    """
-    def create_Task(self,text,parent,c,r):
-      pass
 
     def create_DeletelistButton(self,parent : str,bg : str,text : str,column : int,row : int,width : int,height : int,onClick : str):
         buttonObj = Button(parent,bg=bg,width=width,height=height,activebackground=onClick,relief=GROOVE,text=text,font=('Arial',10,BOLD))
