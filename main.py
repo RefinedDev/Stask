@@ -3,7 +3,6 @@ from playsound import playsound
 import sqlite3
 import glob
 import os
-import json
 
 class Stask:
     def __init__(self):
@@ -16,11 +15,8 @@ class Stask:
 
         self.UIobj = self.UIclass.UI
         self.UIobj.state('zoomed')    
- 
-        with open('settings.json') as f:
-            data = json.load(f)
-            
-        self.BGColor = data['BackgroundColor']
+  
+        self.BGColor = 'springgreen2'
     """
     IMPORTANT FUNCTIONS !!!!!!
     """
@@ -44,6 +40,10 @@ class Stask:
             self.createTaskList.destroy()
             playsound('Assets/clickSound.wav')
             delattr(self,'createTaskList')
+        elif hasattr(self,'delete_Task_Frame'):
+            self.delete_Task_Frame.destroy()
+            playsound('Assets/clickSound.wav')
+            delattr(self,'delete_Task_Frame')
             
         self.mainMenu = self.UIclass.create_Frame(self.BGColor)
 
@@ -80,47 +80,81 @@ class Stask:
             back = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='red',textOrImage="Go Back",width=20,height=2,onClick='red3')
             back.config(command=self.create_MainMenu)
         else:
-            self.currentColumn = 0
-            self.currentRow = 0
+            currentColumn = 0
+            currentRow = 0
             for i in databases:
-                Grid.rowconfigure(self.view_Lists_Frame, self.currentRow, weight=1)
-                Grid.columnconfigure(self.view_Lists_Frame, self.currentColumn, weight=1)
+                Grid.rowconfigure(self.view_Lists_Frame, currentRow, weight=1)
+                Grid.columnconfigure(self.view_Lists_Frame, currentColumn, weight=1)
 
                 name = i.split(".DB")
                 name = name[0]
-                self.create_viewListButton(self.view_Lists_Frame,bg='goldenrod1',text=name,column=self.currentColumn,row=self.currentRow,width=30,height=3,onClick='goldenrod3')
-                self.currentRow += 1
-                if self.currentRow >= 10:
-                    self.currentRow = 0
-                    self.currentColumn += 1
+                self.create_viewListButton(self.view_Lists_Frame,bg='goldenrod1',text=name,column=currentColumn,row=currentRow,width=30,height=3,onClick='goldenrod3')
+                currentRow += 1
+                if currentRow >= 10:
+                    currentRow = 0
+                    currentColumn += 1
             
-            back = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='red',textOrImage="Back",width=20,height=2,onClick='red3',isGrid=True,column=self.currentColumn,row=self.currentRow)
+            back = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='red',textOrImage="Back",width=20,height=2,onClick='red3',isGrid=True,column=currentColumn,row=currentRow)
             back.config(command=self.create_MainMenu)
 
-            Grid.rowconfigure(self.view_Lists_Frame, self.currentRow, weight=1)
-            Grid.columnconfigure(self.view_Lists_Frame, self.currentColumn, weight=1)
+            Grid.rowconfigure(self.view_Lists_Frame, currentRow, weight=1)
+            Grid.columnconfigure(self.view_Lists_Frame, currentColumn, weight=1)
 
     def view_TheList(self,name):
+        playsound('Assets/clickSound.wav')
+
         for i in self.view_Lists_Frame.winfo_children():
             i.destroy()
 
-        for i in range(self.currentColumn):
-            Grid.columnconfigure(self.view_Lists_Frame, i, weight=0)
+        currentRow = 1
+        db = sqlite3.connect(f'{name}.DB')
+        cursor = db.cursor()
+
+        cursor.execute("SELECT * FROM pending")
+        result = cursor.fetchall()
+        cursor.execute("SELECT * FROM doing")
+        result2 = cursor.fetchall()
+        cursor.execute("SELECT * FROM done")
+        result3 = cursor.fetchall()
         
-        for i in range(self.currentRow):
-            Grid.rowconfigure(self.view_Lists_Frame, i, weight=0)
-
-        delattr(self,'currentColumn')
-        delattr(self,'currentRow')
-
         self.UIclass.create_Lable(parent=self.view_Lists_Frame,bg=self.BGColor,textOrImage='Pending',isGrid=True,column=0)
-        self.UIclass.create_Lable(parent=self.view_Lists_Frame,bg=self.BGColor,textOrImage='Doing',isGrid=True,column=1).config(padx=500)
+        self.UIclass.create_Lable(parent=self.view_Lists_Frame,bg=self.BGColor,textOrImage='Doing',isGrid=True,column=1)
         self.UIclass.create_Lable(parent=self.view_Lists_Frame,bg=self.BGColor,textOrImage='Done',isGrid=True,column=2)
+        
+        for i in range(2):
+            Grid.columnconfigure(self.view_Lists_Frame, i, weight=1)
 
-        createTask = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='turquoise',textOrImage="Create Task",width=10,height=1,onClick='dark turquoise',isGrid=True,column=2,row=2)
+        for i in result:
+            text = i[0]
+            Grid.rowconfigure(self.view_Lists_Frame, currentRow, weight=1)
+            self.create_TaskButton(self.view_Lists_Frame,bg='goldenrod1',text=text,column=0,row=currentRow,width=20,height=2,onClick='goldenrod3',dataBase=name)
+            currentRow += 1
+
+        currentRow = 1
+
+        for i in result2:
+            text = i[0]
+            Grid.rowconfigure(self.view_Lists_Frame, currentRow, weight=1)
+            self.create_TaskButton(self.view_Lists_Frame,bg='goldenrod1',text=text,column=1,row=currentRow,width=20,height=2,onClick='goldenrod3',dataBase=name)
+            currentRow += 1
+
+        currentRow = 1
+
+        for i in result3:
+            text = i[0]
+            Grid.rowconfigure(self.view_Lists_Frame, currentRow, weight=1)
+            self.create_TaskButton(self.view_Lists_Frame,bg='goldenrod1',text=text,column=2,row=currentRow,width=20,height=2,onClick='goldenrod3',dataBase=name)
+            currentRow += 1
+
+        currentRow = 1
+
+        createTask = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='turquoise',textOrImage="Create Task",width=10,height=1,onClick='dark turquoise',isGrid=True,column=3,row=currentRow+1)
         createTask.config(command=lambda : self.create_Task(name))
 
-        back = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='red',textOrImage="Back",width=10,height=1,onClick='red3',isGrid=True,column=3,row=2)
+        deleteTask = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='turquoise',textOrImage="Delete Task",width=10,height=1,onClick='dark turquoise',isGrid=True,column=3,row=currentRow +2)
+        deleteTask.config(command=lambda : self.create_DeleteTaskFrame(name))
+
+        back = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='red',textOrImage="Back",width=10,height=1,onClick='red3',isGrid=True,column=3,row=currentRow + 3)
         back.config(command=self.create_MainMenu)
 
     def create_DeleteListFrame(self):
@@ -159,6 +193,47 @@ class Stask:
             back = self.UIclass.create_Button(parent=self.deleteList,bg='red',textOrImage="Back",width=20,height=2,onClick='red3',isGrid=True,column=currentColumn + 1,row=currentRow + 2)
             back.config(command=self.create_MainMenu)
     
+    def create_DeleteTaskFrame(self,dbName):
+        """
+        Create DeleteTaskFrame Yes.
+        """
+        if hasattr(self,'view_Lists_Frame'):
+            self.view_Lists_Frame.destroy()
+            delattr(self,'view_Lists_Frame')
+            playsound('Assets/clickSound.wav')
+
+        self.delete_Task_Frame = self.UIclass.create_Frame(self.BGColor)
+
+        currentColumn = 0
+        currentRow = 0
+        db =  sqlite3.connect(f'{dbName}.DB')
+        cursor = db.cursor()
+        cursor.execute("SELECT * FROM pending")
+        result1 = cursor.fetchall()
+        cursor.execute("SELECT * FROM doing")
+        result1.extend(cursor.fetchall())
+        cursor.execute("SELECT * FROM done")
+        result1.extend(cursor.fetchall())
+        
+        for i in result1:
+            Grid.rowconfigure(self.delete_Task_Frame, currentRow, weight=1)
+            Grid.columnconfigure(self.delete_Task_Frame, currentColumn, weight=1)    
+            name = i[0]
+            self.create_DeleteTaskButton(self.delete_Task_Frame,bg='goldenrod1',text=name,column=currentColumn,row=currentRow,width=30,height=3,onClick='goldenrod3')
+            currentRow += 1
+            if currentRow >= 10:
+                currentRow = 0
+                currentColumn += 1
+
+        self.currentSelectionForTask = self.UIclass.create_Lable(parent=self.delete_Task_Frame,bg=self.BGColor,textOrImage="None",isGrid=True,column=currentColumn + 1,row=currentRow)
+
+        delete = self.UIclass.create_Button(parent=self.delete_Task_Frame,bg='turquoise',textOrImage="Delete",width=20,height=2,onClick='dark turquoise',isGrid=True,column=currentColumn + 1,row=currentRow + 1)
+        delete.config(command= lambda : self.delete_Task(dbName))
+
+        back = self.UIclass.create_Button(parent=self.delete_Task_Frame,bg='red',textOrImage="Back",width=20,height=2,onClick='red3',isGrid=True,column=currentColumn + 1,row=currentRow + 2)
+        back.config(command=self.create_MainMenu)
+
+        db.close()
     def create_Task(self,text):
         self.view_Lists_Frame.destroy()
         delattr(self,'view_Lists_Frame')
@@ -213,10 +288,7 @@ class Stask:
             delattr(self,'resultLable')
 
         check = self.UIclass.check_TextLength(textWritten,3)
-        if check  == 'exists':
-            self.resultLable = self.UIclass.create_Lable(parent=self.createTaskList,bg=self.BGColor,textOrImage=f'List with the name "{textWritten}" already exists!',width=200,height=2)
-            return;
-        elif check == True:
+        if check == True:
             self.resultLable = self.UIclass.create_Lable(parent=self.createTaskList,bg=self.BGColor,textOrImage='Creating list, please wait..',width=200,height=2)
         else:
             self.resultLable = self.UIclass.create_Lable(parent=self.createTaskList,bg=self.BGColor,textOrImage='Give the List a Longer Name (at least 3 letters)',width=200,height=2)
@@ -225,9 +297,11 @@ class Stask:
         db = sqlite3.connect(f'{nameOfDB}.DB')
         cursor = db.cursor()
         
-        cursor.execute(str.format("INSERT INTO pending (task) VALUES('%s')",textWritten))
+        cursor.execute(f"INSERT INTO pending (task) VALUES('{textWritten}')")
+        db.commit()
         db.close()
         self.resultLable.config(text='Task Created!')
+        
     def create_ListDatabase(self,inputLable):
         """
         Make the database for the list yes.
@@ -263,18 +337,52 @@ class Stask:
         buttonObj.config(command=lambda : self.update_Selection_text(text))
         return buttonObj
 
+    def create_DeleteTaskButton(self,parent : str,bg : str,text : str,column : int,row : int,width : int,height : int,onClick : str):
+        buttonObj = Button(parent,bg=bg,width=width,height=height,activebackground=onClick,relief=GROOVE,text=text,font=('Arial',10,BOLD))
+        buttonObj.grid(column=column,row=row)
+        buttonObj.config(command=lambda : self.update_Selection_text(text))
+        return buttonObj
+
     def create_viewListButton(self,parent : str,bg : str,text : str,column : int,row : int,width : int,height : int,onClick : str):
         buttonObj = Button(parent,bg=bg,width=width,height=height,activebackground=onClick,relief=GROOVE,text=text,font=('Arial',10,BOLD))
         buttonObj.grid(column=column,row=row)
         buttonObj.config(command=lambda : self.view_TheList(text))
         return buttonObj
 
+    def create_TaskButton(self,parent : str,bg : str,text : str,column : int,row : int,width : int,height : int,onClick : str,dataBase : str):
+        buttonObj = Button(parent,bg=bg,width=width,height=height,activebackground=onClick,relief=GROOVE,text=text,font=('Arial',10,BOLD))
+        buttonObj.grid(column=column,row=row)
+        buttonObj.config(command=lambda : self.make_Button_Done_Pending_Doing(column,dataBase,text))
+        return buttonObj
+
+    def make_Button_Done_Pending_Doing(self,column,database,text):
+        db = sqlite3.connect(f'{database}.DB')
+        cursor = db.cursor()
+        if column == 0: # Was Pending Now Doing
+            cursor.execute(f"INSERT INTO doing (task) VALUES('{text}')")
+            cursor.execute(f"DELETE FROM pending WHERE task = '{text}'")
+            db.commit()
+        elif column == 1: # Was Doing Now Done
+            cursor.execute(f"INSERT INTO done (task) VALUES('{text}')")
+            cursor.execute(f"DELETE FROM doing WHERE task = '{text}'")
+            db.commit()
+        elif column == 2: # Done Now Pending
+            cursor.execute(f"INSERT INTO pending (task) VALUES('{text}')")
+            cursor.execute(f"DELETE FROM done WHERE task = '{text}'")
+            db.commit()
+        self.view_TheList(database)
+        db.close()
+        
     def createPadding(self,parent,height):
         self.UIclass.create_Lable(parent=parent,bg=self.BGColor,textOrImage='',height=height)
 
     def update_Selection_text(self,name):
+        playsound('Assets/clickSound.wav')
+        
         if hasattr(self,'currentSelection'):
             self.currentSelection.config(text=f'{name}')
+        elif hasattr(self,'currentSelectionForTask'):
+            self.currentSelectionForTask.config(text=f'{name}')
 
     def delete_List(self):
         text = self.currentSelection.cget("text")
@@ -282,6 +390,28 @@ class Stask:
             os.remove(f'{text}.DB')
             self.deleteList.destroy()
             self.create_DeleteListFrame()
+
+    def delete_Task(self,dBNAME):
+        text = self.currentSelectionForTask.cget("text")
+        db = sqlite3.connect(f'{dBNAME}.DB')
+        cursor = db.cursor()
+
+        cursor.execute(f"SELECT * FROM pending WHERE task = '{text}'")
+        if len(cursor.fetchall()) != 0:
+            cursor.execute(f"DELETE FROM pending WHERE task = '{text}'")
+        else:
+            cursor.execute(f"SELECT * FROM doing WHERE task = '{text}'")
+            if len(cursor.fetchall()) != 0:
+                cursor.execute(f"DELETE FROM doing WHERE task = '{text}'")
+            else:
+                cursor.execute(f"SELECT * FROM done WHERE task = '{text}'")
+                if len(cursor.fetchall()) != 0:
+                    cursor.execute(f"DELETE FROM done WHERE task = '{text}'")
+
+        db.commit()
+        db.close()
+        self.delete_Task_Frame.destroy()
+        self.create_DeleteTaskFrame(dBNAME)
 
 if __name__ == '__main__':
     app = Stask()

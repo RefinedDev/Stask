@@ -15,7 +15,7 @@ class StaskUIClass:
 
     def create_Frame(self,bg):
         frame = Frame(self.UI,bg=bg)
-        frame.pack(side="top", fill="both", expand=True)
+        frame.pack(fill="both", expand=True)
         return frame
 
     def create_Lable(self,parent : str,bg : str,isImage : bool = False,textOrImage : PhotoImage = None,isGrid : bool = False,side='top',column : int = 0,row : int = 0,width : int = 0,height : int = 0):
