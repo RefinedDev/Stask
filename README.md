@@ -13,8 +13,3 @@ Inside the Folder you can run the `Stask.exe` file and it will run the applicati
 # Basic View Of The Application
 
 https://user-images.githubusercontent.com/74603055/130188681-60461ddc-70af-49be-bf3e-3c2cdc195d7c.mp4
-
-# Some Things That I Wanted To Mention
-I have made the App Responsive On Every Device and every Resolution, but that made the app a little "Weird" in terms of UI placement. Sometimes the UI can be Scattered around the screen. I'm trying to fix it at the moment but I think it's safe to release the app Right Now because i have found No any other problems.
-
-If you know that why's that happening then let me know please :)

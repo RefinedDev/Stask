@@ -44,10 +44,14 @@ class Stask:
             self.delete_Task_Frame.destroy()
             playsound('Assets/clickSound.wav')
             delattr(self,'delete_Task_Frame')
+        elif hasattr(self,'the_List'):
+            self.the_List.destroy()
+            playsound('Assets/clickSound.wav')
+            delattr(self,'the_List')
             
         self.mainMenu = self.UIclass.create_Frame(self.BGColor)
 
-        versionLable = Label(self.mainMenu, text="V0.1",bg=self.BGColor,font=('Arial',25))
+        versionLable = Label(self.mainMenu, text="V0.2",bg=self.BGColor,font=('Arial',25))
         versionLable.pack(side='bottom',anchor=SE)
 
         self.UIclass.create_Lable(parent=self.mainMenu,bg=self.BGColor,isImage=True,textOrImage=self.menu_Image,width=400,height=250)
@@ -84,7 +88,6 @@ class Stask:
             currentRow = 0
             for i in databases:
                 Grid.rowconfigure(self.view_Lists_Frame, currentRow, weight=1)
-                Grid.columnconfigure(self.view_Lists_Frame, currentColumn, weight=1)
 
                 name = i.split(".DB")
                 name = name[0]
@@ -94,19 +97,22 @@ class Stask:
                     currentRow = 0
                     currentColumn += 1
             
+            Grid.columnconfigure(self.view_Lists_Frame, currentColumn, weight=1)
             back = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='red',textOrImage="Back",width=20,height=2,onClick='red3',isGrid=True,column=currentColumn,row=currentRow)
             back.config(command=self.create_MainMenu)
 
-            Grid.rowconfigure(self.view_Lists_Frame, currentRow, weight=1)
-            Grid.columnconfigure(self.view_Lists_Frame, currentColumn, weight=1)
 
     def view_TheList(self,name):
         playsound('Assets/clickSound.wav')
 
-        for i in self.view_Lists_Frame.winfo_children():
-            i.destroy()
+        if hasattr(self,'view_Lists_Frame'):
+            self.view_Lists_Frame.destroy()
+            delattr(self,'view_Lists_Frame')
+        elif hasattr(self,'the_List'):
+            self.the_List.destroy()
 
-        currentRow = 1
+        self.the_List = self.UIclass.create_Frame(self.BGColor)
+        
         db = sqlite3.connect(f'{name}.DB')
         cursor = db.cursor()
 
@@ -117,44 +123,44 @@ class Stask:
         cursor.execute("SELECT * FROM done")
         result3 = cursor.fetchall()
         
-        self.UIclass.create_Lable(parent=self.view_Lists_Frame,bg=self.BGColor,textOrImage='Pending',isGrid=True,column=0)
-        self.UIclass.create_Lable(parent=self.view_Lists_Frame,bg=self.BGColor,textOrImage='Doing',isGrid=True,column=1)
-        self.UIclass.create_Lable(parent=self.view_Lists_Frame,bg=self.BGColor,textOrImage='Done',isGrid=True,column=2)
-        
-        for i in range(2):
-            Grid.columnconfigure(self.view_Lists_Frame, i, weight=1)
+        self.UIclass.create_Lable(parent=self.the_List,bg=self.BGColor,textOrImage='Pending',isGrid=True,column=0)
+        self.UIclass.create_Lable(parent=self.the_List,bg=self.BGColor,textOrImage='Doing',isGrid=True,column=1)
+        self.UIclass.create_Lable(parent=self.the_List,bg=self.BGColor,textOrImage='Done',isGrid=True,column=2)
+
+        currentRow = 1
+        Grid.columnconfigure(self.the_List, 1, weight=1)
 
         for i in result:
             text = i[0]
-            Grid.rowconfigure(self.view_Lists_Frame, currentRow, weight=1)
-            self.create_TaskButton(self.view_Lists_Frame,bg='goldenrod1',text=text,column=0,row=currentRow,width=20,height=2,onClick='goldenrod3',dataBase=name)
+            Grid.rowconfigure(self.the_List, currentRow, weight=1)
+            self.create_TaskButton(self.the_List,bg='goldenrod1',text=text,column=0,row=currentRow,width=20,height=2,onClick='goldenrod3',dataBase=name)
             currentRow += 1
 
         currentRow = 1
 
         for i in result2:
             text = i[0]
-            Grid.rowconfigure(self.view_Lists_Frame, currentRow, weight=1)
-            self.create_TaskButton(self.view_Lists_Frame,bg='goldenrod1',text=text,column=1,row=currentRow,width=20,height=2,onClick='goldenrod3',dataBase=name)
+            Grid.rowconfigure(self.the_List, currentRow, weight=1)
+            self.create_TaskButton(self.the_List,bg='goldenrod1',text=text,column=1,row=currentRow,width=20,height=2,onClick='goldenrod3',dataBase=name)
             currentRow += 1
 
         currentRow = 1
 
         for i in result3:
             text = i[0]
-            Grid.rowconfigure(self.view_Lists_Frame, currentRow, weight=1)
-            self.create_TaskButton(self.view_Lists_Frame,bg='goldenrod1',text=text,column=2,row=currentRow,width=20,height=2,onClick='goldenrod3',dataBase=name)
+            Grid.rowconfigure(self.the_List, currentRow, weight=1)
+            self.create_TaskButton(self.the_List,bg='goldenrod1',text=text,column=2,row=currentRow,width=20,height=2,onClick='goldenrod3',dataBase=name)
             currentRow += 1
 
         currentRow = 1
 
-        createTask = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='turquoise',textOrImage="Create Task",width=10,height=1,onClick='dark turquoise',isGrid=True,column=3,row=currentRow+1)
+        createTask = self.UIclass.create_Button(parent=self.the_List,bg='turquoise',textOrImage="Create Task",width=15,height=1,onClick='dark turquoise',isGrid=True,column=3,row=currentRow+1)
         createTask.config(command=lambda : self.create_Task(name))
 
-        deleteTask = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='turquoise',textOrImage="Delete Task",width=10,height=1,onClick='dark turquoise',isGrid=True,column=3,row=currentRow +2)
+        deleteTask = self.UIclass.create_Button(parent=self.the_List,bg='turquoise',textOrImage="Delete Task",width=15,height=1,onClick='dark turquoise',isGrid=True,column=3,row=currentRow +2)
         deleteTask.config(command=lambda : self.create_DeleteTaskFrame(name))
 
-        back = self.UIclass.create_Button(parent=self.view_Lists_Frame,bg='red',textOrImage="Back",width=10,height=1,onClick='red3',isGrid=True,column=3,row=currentRow + 3)
+        back = self.UIclass.create_Button(parent=self.the_List,bg='red',textOrImage="Back",width=15,height=1,onClick='red3',isGrid=True,column=3,row=currentRow + 3)
         back.config(command=self.create_MainMenu)
 
     def create_DeleteListFrame(self):
@@ -176,7 +182,6 @@ class Stask:
             currentRow = 0
             for i in databases:
                 Grid.rowconfigure(self.deleteList, currentRow, weight=1)
-                Grid.columnconfigure(self.deleteList, currentColumn, weight=1)    
                 name = i.split(".DB")
                 name = name[0]
                 self.create_DeletelistButton(self.deleteList,bg='goldenrod1',text=name,column=currentColumn,row=currentRow,width=30,height=3,onClick='goldenrod3')
@@ -185,6 +190,7 @@ class Stask:
                     currentRow = 0
                     currentColumn += 1
 
+            Grid.columnconfigure(self.deleteList, currentColumn, weight=1)    
             self.currentSelection = self.UIclass.create_Lable(parent=self.deleteList,bg=self.BGColor,textOrImage="None",isGrid=True,column=currentColumn + 1,row=currentRow)
 
             delete = self.UIclass.create_Button(parent=self.deleteList,bg='turquoise',textOrImage="Delete",width=20,height=2,onClick='dark turquoise',isGrid=True,column=currentColumn + 1,row=currentRow + 1)
@@ -197,9 +203,9 @@ class Stask:
         """
         Create DeleteTaskFrame Yes.
         """
-        if hasattr(self,'view_Lists_Frame'):
-            self.view_Lists_Frame.destroy()
-            delattr(self,'view_Lists_Frame')
+        if hasattr(self,'the_List'):
+            self.the_List.destroy()
+            delattr(self,'the_List')
             playsound('Assets/clickSound.wav')
 
         self.delete_Task_Frame = self.UIclass.create_Frame(self.BGColor)
@@ -217,7 +223,6 @@ class Stask:
         
         for i in result1:
             Grid.rowconfigure(self.delete_Task_Frame, currentRow, weight=1)
-            Grid.columnconfigure(self.delete_Task_Frame, currentColumn, weight=1)    
             name = i[0]
             self.create_DeleteTaskButton(self.delete_Task_Frame,bg='goldenrod1',text=name,column=currentColumn,row=currentRow,width=30,height=3,onClick='goldenrod3')
             currentRow += 1
@@ -225,6 +230,7 @@ class Stask:
                 currentRow = 0
                 currentColumn += 1
 
+        Grid.columnconfigure(self.delete_Task_Frame, currentColumn, weight=1)    
         self.currentSelectionForTask = self.UIclass.create_Lable(parent=self.delete_Task_Frame,bg=self.BGColor,textOrImage="None",isGrid=True,column=currentColumn + 1,row=currentRow)
 
         delete = self.UIclass.create_Button(parent=self.delete_Task_Frame,bg='turquoise',textOrImage="Delete",width=20,height=2,onClick='dark turquoise',isGrid=True,column=currentColumn + 1,row=currentRow + 1)
@@ -235,8 +241,8 @@ class Stask:
 
         db.close()
     def create_Task(self,text):
-        self.view_Lists_Frame.destroy()
-        delattr(self,'view_Lists_Frame')
+        self.the_List.destroy()
+        delattr(self,'the_List')
         playsound('Assets/clickSound.wav')
 
         self.createTaskList = self.UIclass.create_Frame(self.BGColor)
