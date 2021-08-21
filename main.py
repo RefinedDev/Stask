@@ -231,7 +231,7 @@ class Stask:
                 currentColumn += 1
 
         Grid.columnconfigure(self.delete_Task_Frame, currentColumn, weight=1)    
-        self.currentSelectionForTask = self.UIclass.create_Lable(parent=self.delete_Task_Frame,bg=self.BGColor,textOrImage="None",isGrid=True,column=currentColumn + 1,row=currentRow)
+        self.currentSelection = self.UIclass.create_Lable(parent=self.delete_Task_Frame,bg=self.BGColor,textOrImage="None",isGrid=True,column=currentColumn + 1,row=currentRow)
 
         delete = self.UIclass.create_Button(parent=self.delete_Task_Frame,bg='turquoise',textOrImage="Delete",width=20,height=2,onClick='dark turquoise',isGrid=True,column=currentColumn + 1,row=currentRow + 1)
         delete.config(command= lambda : self.delete_Task(dbName))
@@ -387,8 +387,6 @@ class Stask:
         
         if hasattr(self,'currentSelection'):
             self.currentSelection.config(text=f'{name}')
-        elif hasattr(self,'currentSelectionForTask'):
-            self.currentSelectionForTask.config(text=f'{name}')
 
     def delete_List(self):
         text = self.currentSelection.cget("text")
@@ -398,7 +396,7 @@ class Stask:
             self.create_DeleteListFrame()
 
     def delete_Task(self,dBNAME):
-        text = self.currentSelectionForTask.cget("text")
+        text = self.currentSelection.cget("text")
         db = sqlite3.connect(f'{dBNAME}.DB')
         cursor = db.cursor()
 

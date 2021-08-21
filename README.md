@@ -12,4 +12,4 @@ Inside the Folder you can run the `Stask.exe` file and it will run the applicati
 
 # Basic View Of The Application
 
-https://user-images.githubusercontent.com/74603055/130188681-60461ddc-70af-49be-bf3e-3c2cdc195d7c.mp4
+https://user-images.githubusercontent.com/74603055/130313013-9d4a5a02-6fe8-4081-b62e-0628d84ca7f5.mp4
