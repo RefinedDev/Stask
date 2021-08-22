@@ -5,7 +5,7 @@ Stask is a To-Do list maker, in which you can create or delete lists. Create Tas
 # Installation 
 To install, go to the repository's [Latest Release Page](https://github.com/RefinedDev/Stask/releases) and click the Install Hyperlink.
 
-**You're computer MIGHT warn you that the Application has a virus usually with name `Trojan:Win32/Wacatac` or something similar. That is not True, this Application won't harm your PC in any way.**
+**You're computer MIGHT warn you that the Application has a virus usually with name `Trojan:Win32/Wacatac` or something similar. That is not True, this Application won't harm your PC in any way.**  <-- I think I fixed this problem in v0.3 but I'm leaving this in JUST IN Case.
 
 After clicking the install hyperlink, it will download a ZIP file which you should extract on your Desktop. 
 Inside the Folder you can run the `Stask.exe` file and it will run the application for you.

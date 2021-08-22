@@ -73,7 +73,12 @@ class Stask:
         """
         Creates View_Lists Frame Yes.
         """
-        self.mainMenu.destroy()
+        if hasattr(self,'the_List'):
+            self.the_List.destroy()
+            delattr(self,'the_List')
+        else:
+            self.mainMenu.destroy()
+
         playsound('Assets/clickSound.wav')
 
         self.view_Lists_Frame = self.UIclass.create_Frame(self.BGColor)
@@ -108,6 +113,12 @@ class Stask:
         if hasattr(self,'view_Lists_Frame'):
             self.view_Lists_Frame.destroy()
             delattr(self,'view_Lists_Frame')
+        elif hasattr(self,'delete_Task_Frame'):
+            self.delete_Task_Frame.destroy()
+            delattr(self,'delete_Task_Frame')
+        elif hasattr(self,'createTaskList'):
+            self.createTaskList.destroy()
+            delattr(self,'createTaskList')
         elif hasattr(self,'the_List'):
             self.the_List.destroy()
 
@@ -161,7 +172,7 @@ class Stask:
         deleteTask.config(command=lambda : self.create_DeleteTaskFrame(name))
 
         back = self.UIclass.create_Button(parent=self.the_List,bg='red',textOrImage="Back",width=15,height=1,onClick='red3',isGrid=True,column=3,row=currentRow + 3)
-        back.config(command=self.create_MainMenu)
+        back.config(command=self.create_ViewlistsFrame)
 
     def create_DeleteListFrame(self):
         """
@@ -237,7 +248,7 @@ class Stask:
         delete.config(command= lambda : self.delete_Task(dbName))
 
         back = self.UIclass.create_Button(parent=self.delete_Task_Frame,bg='red',textOrImage="Back",width=20,height=2,onClick='red3',isGrid=True,column=currentColumn + 1,row=currentRow + 2)
-        back.config(command=self.create_MainMenu)
+        back.config(command=lambda : self.view_TheList(dbName))
 
         db.close()
     def create_Task(self,text):
@@ -258,7 +269,7 @@ class Stask:
         self.createPadding(self.createTaskList,1)
 
         back = self.UIclass.create_Button(parent=self.createTaskList,bg='red',textOrImage="Go Back",width=20,height=2,onClick='red3')
-        back.config(command=self.create_MainMenu)
+        back.config(command=lambda : self.view_TheList(text))
 
     def create_CreateListFrame(self):
         """
