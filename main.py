@@ -3,9 +3,13 @@ from playsound import playsound
 import sqlite3
 import glob
 import os
+from versionCheck import check
 
 class Stask:
     def __init__(self):
+        self.CURRENT_VERSION  = '0.4'
+        check(self.CURRENT_VERSION)
+
         self.UIclass = StaskUIClass()
       
         self.menu_Image = PhotoImage(file= r"Assets\StaskLogo_NOBG.png")
@@ -51,7 +55,7 @@ class Stask:
             
         self.mainMenu = self.UIclass.create_Frame(self.BGColor)
 
-        versionLable = Label(self.mainMenu, text="V0.3",bg=self.BGColor,font=('Arial',25))
+        versionLable = Label(self.mainMenu, text=f"V{self.CURRENT_VERSION}",bg=self.BGColor,font=('Arial',25))
         versionLable.pack(side='bottom',anchor=SE)
 
         self.UIclass.create_Lable(parent=self.mainMenu,bg=self.BGColor,isImage=True,textOrImage=self.menu_Image,width=400,height=250)
